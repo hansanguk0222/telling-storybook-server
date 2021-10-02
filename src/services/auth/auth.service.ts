@@ -4,11 +4,6 @@ import { Repository } from 'typeorm';
 import { User } from '@/entities/users/users.entity';
 import { JwtService } from '@nestjs/jwt';
 
-interface ISignIn {
-  user: Promise<User>;
-  accessToken: string;
-}
-
 @Injectable()
 export class AuthService {
   constructor(
