@@ -10,9 +10,23 @@ import { CommentsModule } from './modules/comments/comments.module';
 import { ReCommentsModule } from './modules/reComments/reComments.module';
 import { BookScoreCommentsModule } from './modules/bookScoreComments/bookScoreComments.module';
 import { VoiceRoomsModule } from './modules/voiceRooms/voiceRooms.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { ConfigModule } from '@nestjs/config';
+import Joi from 'joi';
+
 @Module({
   imports: [
     TypeOrmModule.forRoot({ autoLoadEntities: true }),
+    ConfigModule.forRoot({
+      envFilePath:
+        process.env.NODE_ENV === 'dev' ? '.env.development' : '.env.prod',
+      isGlobal: true,
+      // validationSchema: Joi.object({
+      //   NODE_ENV: Joi.string().valid('dev', 'prod', 'test').required(),
+      //   ACCESS_TOKEN_KEY: Joi.string().required(),
+      //   REFRESH_TOKEN_KEY: Joi.string().required(),
+      // }),
+    }),
     UsersModule,
     BoardsModule,
     AsmrsModule,
@@ -20,6 +34,7 @@ import { VoiceRoomsModule } from './modules/voiceRooms/voiceRooms.module';
     ReCommentsModule,
     BookScoreCommentsModule,
     VoiceRoomsModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
