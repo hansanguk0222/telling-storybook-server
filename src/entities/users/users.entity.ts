@@ -45,13 +45,13 @@ export class User {
   @Column({ nullable: false })
   nickname: string;
 
-  @Column({ nullable: false })
+  @Column({ type: 'text', nullable: false })
   refresh_token: string;
 
-  @Column({ default: 0, nullable: false })
+  @Column({ type: 'int', default: 0, nullable: false })
   total_reading_time: number;
 
-  @Column({ default: false, nullable: false })
+  @Column({ type: 'tinyint', default: false, nullable: false })
   is_deleted: boolean;
 
   @Column({
