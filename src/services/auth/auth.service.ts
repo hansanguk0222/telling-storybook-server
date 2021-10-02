@@ -42,14 +42,14 @@ export class AuthService {
     accessToken: string;
     refreshToken: string;
   }> {
-    const accessToken = this.jwtService.sign(
+    const accessToken = `Bearer ${this.jwtService.sign(
       { email, nickname },
       { secret: process.env.ACCESS_TOKEN_KEY, expiresIn: 60 * 5 },
-    );
-    const refreshToken = this.jwtService.sign(
+    )}`;
+    const refreshToken = `Bearer ${this.jwtService.sign(
       { email, nickname },
       { secret: process.env.REFRESH_TOKEN_KEY, expiresIn: 60 * 60 * 24 * 60 },
-    );
+    )}`;
     const user = await this.userRepository.save({
       email,
       nickname,
