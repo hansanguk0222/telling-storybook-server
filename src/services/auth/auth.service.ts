@@ -14,16 +14,38 @@ export class AuthService {
     this.userRepository = userRepository;
   }
 
-  async signIn({ email }: { email: string }): Promise<{
-    user: User;
-    accessToken: string;
-  }> {
+  async getRefreshToken({ email }: { email: string }): Promise<string> {
+    const { refresh_token: refreshToken } = await this.userRepository.findOne({
+      email,
+    });
+    return refreshToken;
+  }
+
+  async signIn({ email }: { email: string }): Promise<
+    | {
+        userId: number;
+        accessToken: string;
+      }
+    | false
+  > {
     const user = await this.userRepository.findOne({ email });
-    const accessToken = this.jwtService.sign(
-      { email },
-      { secret: process.env.ACCESS_TOKEN_KEY, expiresIn: 60 * 5 },
-    );
-    return { user, accessToken };
+    if (user) {
+      const accessToken = this.jwtService.sign(
+        { email },
+        { secret: process.env.ACCESS_TOKEN_KEY, expiresIn: 60 * 5 },
+      );
+      const refreshToken = `Bearer ${this.jwtService.sign(
+        { email },
+        { secret: process.env.REFRESH_TOKEN_KEY, expiresIn: 60 * 60 * 24 * 60 },
+      )}`;
+      const newUser = await this.userRepository.save({
+        ...user,
+        refresh_token: refreshToken,
+        updated_at: new Date().toISOString(),
+      });
+      return { userId: newUser._id, accessToken };
+    }
+    return false;
   }
 
   async signUp({
@@ -33,24 +55,26 @@ export class AuthService {
     email: string;
     nickname: string;
   }): Promise<{
-    user: User;
+    userId: number;
     accessToken: string;
-    refreshToken: string;
   }> {
+    console.log('signUp', email, nickname);
     const accessToken = `Bearer ${this.jwtService.sign(
-      { email, nickname },
+      { email },
       { secret: process.env.ACCESS_TOKEN_KEY, expiresIn: 60 * 5 },
     )}`;
     const refreshToken = `Bearer ${this.jwtService.sign(
-      { email, nickname },
+      { email },
       { secret: process.env.REFRESH_TOKEN_KEY, expiresIn: 60 * 60 * 24 * 60 },
     )}`;
     const user = await this.userRepository.save({
       email,
       nickname,
       refresh_token: refreshToken,
+      updated_at: new Date().toISOString(),
+      created_at: new Date().toISOString(),
     });
 
-    return { user, accessToken, refreshToken };
+    return { userId: user._id, accessToken };
   }
 }

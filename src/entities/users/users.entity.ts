@@ -39,7 +39,7 @@ export class User {
   @OneToMany(() => Comment, (comment) => comment.user)
   comments: Comment[];
 
-  @Column({ nullable: false })
+  @Column({ type: 'text', nullable: false })
   email: string;
 
   @Column({ nullable: false })

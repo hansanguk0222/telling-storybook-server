@@ -1,14 +1,16 @@
+import { AuthGuard } from '@/middlewares/AuthGuard.middleware';
 import { AsmrsService } from '@/services/asmrs/asmrs.service';
-import { Controller, Get, UseGuards } from '@nestjs/common';
-import { LocalStrategy } from '@/middlewares/local.strategy';
+import { Controller, Get, Req, Res, UseGuards } from '@nestjs/common';
+import { JwtModule } from '@nestjs/jwt';
+import { Request } from 'express';
 
 @Controller('asmrs')
-@UseGuards(LocalStrategy)
+@UseGuards(new AuthGuard(new JwtModule()))
 export class AsmrsController {
   constructor(private readonly asmrsService: AsmrsService) {}
 
   @Get()
-  async getList() {
+  async getList(@Req() req: Request) {
     const asmrList = await this.asmrsService.getAllAsmrList();
     return { asmrList };
   }
