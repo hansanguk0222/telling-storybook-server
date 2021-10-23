@@ -11,55 +11,33 @@ import { JwtService } from '@nestjs/jwt';
 import { Mixin } from 'ts-mixer';
 
 @Injectable()
-export class AuthGuard
-  extends Mixin(JwtService, AuthService)
-  implements CanActivate
-{
-  public canActivate(context: ExecutionContext): boolean {
+export class AuthGuard extends Mixin(JwtService) implements CanActivate {
+  public async canActivate(context: ExecutionContext): Promise<any> {
     const request = context.switchToHttp().getRequest();
-    const { authorization, email } = request.headers;
+    const { authorization } = request.headers;
 
     if (authorization === undefined) {
       throw new HttpException(ERROR.EMPTY_AUTH_TOKEN, HttpStatus.BAD_REQUEST);
     }
 
     const token = authorization.split(' ')[1];
-    request.user = this.validateToken({ email, token });
-    return true;
+    const result = this.validateToken({ token });
+    return await result;
   }
 
-  async validateToken({
-    email,
-    token,
-  }: {
-    email: string;
-    token: string;
-  }): Promise<{
+  async validateToken({ token }: { token: string }): Promise<{
     email: string;
   }> {
     try {
-      return this.verify(token, {
+      return await this.verify(token, {
         secret: process.env.ACCESS_TOKEN_KEY,
       });
     } catch (error) {
+      console.log(error);
       switch (error.message) {
         case 'jwt expired':
         case 'invalid token':
-          try {
-            const refreshToken = await this.getRefreshToken({ email });
-            return this.verify(refreshToken, {
-              secret: process.env.REFRESH_TOKEN_KEY,
-            });
-          } catch (error) {
-            switch (error.message) {
-              case 'jwt expired':
-              case 'invalid token':
-                throw new HttpException(
-                  ERROR.EXPIRED_TOKEN,
-                  HttpStatus.UNAUTHORIZED,
-                );
-            }
-          }
+          throw new HttpException(ERROR.EXPIRED_TOKEN, HttpStatus.UNAUTHORIZED);
         default:
           throw new HttpException(
             ERROR.SERVER_ERROR,

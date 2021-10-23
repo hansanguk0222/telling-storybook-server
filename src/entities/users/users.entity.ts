@@ -18,7 +18,7 @@ export class User {
   @PrimaryGeneratedColumn()
   _id: number;
 
-  @OneToMany(() => Board, (board) => board.user)
+  @OneToMany(() => Board, (board) => board.userId)
   boards: Board[];
 
   @OneToMany(() => Asmr, (asmr) => asmr.user)

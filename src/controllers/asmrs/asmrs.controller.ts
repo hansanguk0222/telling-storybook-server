@@ -1,6 +1,15 @@
+import { ERROR } from '@/ constants';
 import { AuthGuard } from '@/middlewares/AuthGuard.middleware';
 import { AsmrsService } from '@/services/asmrs/asmrs.service';
-import { Controller, Get, Req, Res, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  HttpException,
+  HttpStatus,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { Request } from 'express';
 
@@ -11,7 +20,14 @@ export class AsmrsController {
 
   @Get()
   async getList(@Req() req: Request) {
-    const asmrList = await this.asmrsService.getAllAsmrList();
-    return { asmrList };
+    try {
+      const asmrList = await this.asmrsService.getAllAsmrList();
+      return { asmrList };
+    } catch (err) {
+      throw new HttpException(
+        ERROR.INVALID_PARAMERTERS,
+        HttpStatus.BAD_REQUEST,
+      );
+    }
   }
 }

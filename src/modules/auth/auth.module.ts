@@ -5,6 +5,8 @@ import { AuthService } from '@/services/auth/auth.service';
 import { AuthController } from '@/controllers/auth/auth.controller';
 import { JwtModule } from '@nestjs/jwt';
 
+//https://kiwi-wiki.tistory.com/26
+
 @Module({
   imports: [TypeOrmModule.forFeature([User]), JwtModule.register({})],
   providers: [AuthService],

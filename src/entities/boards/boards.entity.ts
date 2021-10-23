@@ -16,7 +16,7 @@ export class Board {
 
   @ManyToOne(() => User, (user) => user.boards, { nullable: false })
   @JoinColumn({ name: 'user_id' })
-  user: User;
+  userId: number;
 
   @OneToMany(() => Comment, (comment) => comment.board)
   comments: Comment[];
@@ -30,10 +30,7 @@ export class Board {
   @Column({ nullable: false })
   board_title: string;
 
-  @Column({ default: 0, nullable: false })
-  total_reading_time: number;
-
-  @Column({ default: 0, nullable: false })
+  @Column({ default: 0, nullable: true })
   reading_time: number;
 
   @Column({ default: 0, nullable: false })

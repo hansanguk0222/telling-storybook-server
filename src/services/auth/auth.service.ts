@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '@/entities/users/users.entity';
 import { JwtService } from '@nestjs/jwt';
+import { verify } from 'crypto';
 
 @Injectable()
 export class AuthService {
@@ -12,13 +13,6 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {
     this.userRepository = userRepository;
-  }
-
-  async getRefreshToken({ email }: { email: string }): Promise<string> {
-    const { refresh_token: refreshToken } = await this.userRepository.findOne({
-      email,
-    });
-    return refreshToken;
   }
 
   async signIn({ email }: { email: string }): Promise<
@@ -58,7 +52,6 @@ export class AuthService {
     userId: number;
     accessToken: string;
   }> {
-    console.log('signUp', email, nickname);
     const accessToken = `Bearer ${this.jwtService.sign(
       { email },
       { secret: process.env.ACCESS_TOKEN_KEY, expiresIn: 60 * 5 },
@@ -76,5 +69,26 @@ export class AuthService {
     });
 
     return { userId: user._id, accessToken };
+  }
+
+  async createAccessToken({
+    userId,
+  }: {
+    userId: number;
+  }): Promise<{ userId: number; accessToken: string } | false> {
+    const user = await this.userRepository.findOne({ _id: userId });
+    const token = user.refresh_token.split(' ')[1];
+    if (
+      this.jwtService.verify(token, {
+        secret: process.env.REFRESH_TOKEN_KEY,
+      })
+    ) {
+      const accessToken = `Bearer ${this.jwtService.sign(
+        { email: user.email },
+        { secret: process.env.ACCESS_TOKEN_KEY, expiresIn: 60 * 5 },
+      )}`;
+      return { userId: user._id, accessToken };
+    }
+    return false;
   }
 }
