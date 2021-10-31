@@ -36,7 +36,6 @@ export class BoardsController {
     },
   ) {
     try {
-      console.log(boardInfo);
       const { boardContent, boardType, boardTitle, readingTime, userId } =
         boardInfo;
       const board = await this.boardsService.writeBoard({
@@ -56,13 +55,13 @@ export class BoardsController {
     }
   }
 
-  @Get(':boardtype')
-  async getBaordList(
+  @Get('/boardtype/:boardtype')
+  async getBoardList(
     @Res({ passthrough: true }) res: Response,
     @Param('boardtype') boardtype: string,
   ) {
+    console.log(boardtype);
     try {
-      console.log(boardtype);
       const { boardList } = await this.boardsService.getBoardList({
         boardType: boardtype,
       });
@@ -71,8 +70,9 @@ export class BoardsController {
         boardType: item.board_type,
         boardContent: item.board_content,
         boardTitle: item.board_title,
-        boardViews: item.board_views,
+        boardViews: item.board_views + 1,
         createdAt: item.created_at,
+        userId: item.user_id,
       }));
       if (boardtype === '독후감') {
         boardList.map((item, idx) => {
@@ -81,5 +81,38 @@ export class BoardsController {
       }
       return { boardList: changeKeyNameBoardList };
     } catch (err) {}
+  }
+
+  @Get(':_id')
+  async getBoardById(
+    @Res({ passthrough: true }) res: Response,
+    @Param('_id') _id: number,
+  ) {
+    try {
+      console.log(_id);
+      const { board } = await this.boardsService.getBoardById({
+        _id,
+      });
+      console.log(board);
+      const changeKeyNameBoard = {
+        _id,
+        boardType: board[0].board_type,
+        boardContent: board[0].board_content,
+        boardTitle: board[0].board_title,
+        boardViews: board[0].board_views,
+        createdAt: board[0].created_at,
+        userId: board[0].user_id,
+      };
+      if (board[0].board_type === '독후감') {
+        changeKeyNameBoard.boardViews = board[0].board_views;
+      }
+      return { board: changeKeyNameBoard };
+    } catch (err) {
+      console.log(err);
+      throw new HttpException(
+        ERROR.INVALID_PARAMERTERS,
+        HttpStatus.BAD_REQUEST,
+      );
+    }
   }
 }

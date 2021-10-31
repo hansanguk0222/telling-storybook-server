@@ -19,9 +19,15 @@ export class Comment {
   @JoinColumn({ name: 'user_id' })
   user: User;
 
+  @Column({ name: 'user_id' })
+  user_id: number;
+
   @ManyToOne(() => Board, (board) => board.comments, { nullable: false })
   @JoinColumn({ name: 'board_id' })
   board: Board;
+
+  @Column({ name: 'board_id' })
+  board_id: number;
 
   @OneToMany(() => ReComment, (reComment) => reComment.comment)
   reComments: ReComment[];

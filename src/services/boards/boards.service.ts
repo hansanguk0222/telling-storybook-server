@@ -27,7 +27,7 @@ export class BoardsService {
   }) {
     console.log(boardContent, boardType, boardTitle, readingTime, userId);
     const board = await this.boardsRepository.save({
-      userId,
+      user_id: userId,
       board_content: boardContent,
       board_title: boardTitle,
       board_type: boardType,
@@ -41,6 +41,18 @@ export class BoardsService {
       is_deleted: false,
       board_type: boardType,
     });
+    console.log(boardList);
     return { boardList };
+  }
+
+  async getBoardById({ _id }: { _id: number }) {
+    const board = await this.boardsRepository.find({
+      _id,
+    });
+    await this.boardsRepository.update(
+      { _id },
+      { board_views: board[0].board_views + 1 },
+    );
+    return { board };
   }
 }

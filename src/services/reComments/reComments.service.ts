@@ -15,4 +15,31 @@ export class ReCommentsService {
   getAllReCommentList(): Promise<ReComment[]> {
     return this.reCommentRepository.find();
   }
+
+  async createRecomment({
+    commentId,
+    reCommentContent,
+    userId,
+    boardId,
+  }: {
+    commentId: string;
+    userId: string;
+    reCommentContent: string;
+    boardId: string;
+  }) {
+    const reComment = await this.reCommentRepository.save({
+      user_id: Number(userId),
+      comment_id: Number(commentId),
+      re_comment_content: reCommentContent,
+      board_id: Number(boardId),
+    });
+    return { reComment };
+  }
+
+  async getRecommentsByBoardId({ boardId }: { boardId: string }) {
+    const reComments = await this.reCommentRepository.find({
+      board_id: Number(boardId),
+    });
+    return { reComments };
+  }
 }

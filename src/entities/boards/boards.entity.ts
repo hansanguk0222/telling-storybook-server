@@ -16,7 +16,10 @@ export class Board {
 
   @ManyToOne(() => User, (user) => user.boards, { nullable: false })
   @JoinColumn({ name: 'user_id' })
-  userId: number;
+  user: User;
+
+  @Column({ name: 'user_id' })
+  user_id: number;
 
   @OneToMany(() => Comment, (comment) => comment.board)
   comments: Comment[];
