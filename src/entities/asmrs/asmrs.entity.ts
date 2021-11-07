@@ -16,8 +16,14 @@ export class Asmr {
   @JoinColumn({ name: 'user_id' })
   user: User;
 
+  @Column({ name: 'user_id' })
+  user_id: number;
+
   @Column({ nullable: false })
   asmr_file_name: string;
+
+  @Column({ nullable: false })
+  title: string;
 
   @Column({ default: 0, nullable: false })
   asmr_views: number;
